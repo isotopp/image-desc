@@ -24,10 +24,7 @@ let activeProviderConfig: ProviderConfig | undefined;
 
 void loadConfiguration();
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  void saveConfiguration();
-});
+form.addEventListener("submit", saveConfiguration);
 
 removeProviderButton.addEventListener("click", () => {
   void removeProvider();
@@ -68,7 +65,8 @@ async function updateContextMenu(): Promise<void> {
     : "Could not disable the image context menu.";
 }
 
-async function saveConfiguration(): Promise<void> {
+async function saveConfiguration(event: SubmitEvent): Promise<void> {
+  event.preventDefault();
   const urlValidation = validateProviderUrl(baseUrl.value.trim());
   if (!urlValidation.valid) {
     status.textContent = urlValidation.message;
@@ -77,7 +75,10 @@ async function saveConfiguration(): Promise<void> {
 
   const originGranted = await requestProviderOriginAccess(urlValidation.url);
   if (!originGranted) {
-    status.textContent = "Provider access was not granted.";
+    status.textContent =
+      `Provider access was not granted for ${urlValidation.url.origin}. ` +
+      "Open the extension's Permissions settings in about:addons, allow this " +
+      "origin, and save again.";
     return;
   }
 

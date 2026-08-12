@@ -7,7 +7,14 @@
     "scripts": ["background.js"]
   },
   "permissions": ["contextMenus", "storage"],
-  "optional_permissions": ["activeTab", "scripting"],
+  "optional_permissions": [
+    "activeTab",
+    "scripting",
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "http://[::1]/*"
+  ],
   "optional_host_permissions": [
     "https://*/*",
     "http://localhost/*",

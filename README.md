@@ -204,8 +204,12 @@ permits.
 
 - **Describe image is disabled:** save a provider, return to the sidebar, and paste
   an image. The action is disabled until both are available.
-- **Firefox says provider access was not granted:** open Options, save the provider
-  again, and allow the exact origin shown by Firefox.
+- **Firefox says provider access was not granted:** open `about:addons`, select
+  **Image Description**, open **Permissions and data**, and allow access for the
+  configured provider origin. Then return to **Options** and select **Save
+  provider** again. If you recently rebuilt the extension, select **Reload** in
+  `about:debugging` first; Firefox can retain an earlier denial until you change
+  the permission there.
 - **The provider URL is rejected:** use HTTPS, except for the three loopback HTTP
   addresses listed above.
 - **The sidebar says it could not create a description:** check that the provider

@@ -45,7 +45,14 @@ describe("extension permission budget", () => {
     expect(required).toContain("contextMenus");
     expect(required).toContain("storage");
     expect(optional).toEqual(
-      expect.arrayContaining(["activeTab", "scripting"]),
+      expect.arrayContaining([
+        "activeTab",
+        "scripting",
+        "https://*/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "http://[::1]/*",
+      ]),
     );
     expect(optional).not.toContain("menus");
     expect(manifest.optional_host_permissions).toEqual(

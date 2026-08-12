@@ -73,7 +73,7 @@ describe("provider origin access", () => {
 
     expect(storage.set).not.toHaveBeenCalled();
     expect(document.querySelector("#status")?.textContent).toBe(
-      "Provider access was not granted.",
+      "Provider access was not granted for https://api.example.test. Open the extension's Permissions settings in about:addons, allow this origin, and save again.",
     );
   });
 
