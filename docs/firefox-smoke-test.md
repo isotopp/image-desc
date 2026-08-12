@@ -49,6 +49,21 @@ Then use a clean Firefox profile or **This Firefox** in `about:debugging`.
 - [ ] Reload or close the sidebar and confirm the image, context, and description
       are gone.
 
+## Optional right-click workflow
+
+- [ ] In **Options**, review the access explanation and enable **Describe this
+      image** for image context menus.
+- [ ] Confirm Firefox requests only `menus`, `activeTab`, and `scripting`; deny the
+      request once and confirm the checkbox remains off and no menu is created.
+- [ ] With permission granted, right-click one image and choose **Describe this
+      image**. Confirm the sidebar opens with only that image selected.
+- [ ] Confirm the provider request contains the local crop of the selected image,
+      with no page text, URL, cookies, or neighboring images.
+- [ ] Right-click an image that Firefox cannot capture and confirm the sidebar shows
+      **Could not capture the selected image.** without inspecting page content.
+- [ ] Disable the option and confirm the menu is removed and the optional
+      permissions are released where Firefox permits.
+
 ## Failure and permission boundaries
 
 - [ ] Stop or reject the provider request and confirm the failure is inline, does

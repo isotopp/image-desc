@@ -1,8 +1,10 @@
 import type { DescriptionProvider } from "../provider/responses";
+import { createDescriptionProvider } from "../provider/responses";
+import type { ProviderConfig } from "../provider/config";
 
 type SidebarState = {
   provider?: DescriptionProvider;
-  image?: File;
+  image?: Blob;
   previewUrl?: string;
   active: boolean;
   controller?: AbortController;
@@ -12,6 +14,16 @@ type SidebarState = {
 
 let state: SidebarState | undefined;
 let updateAvailability: () => void = () => undefined;
+let setImageFromExtension: (image: Blob) => void = () => undefined;
+let setStatusFromExtension: (message: string) => void = () => undefined;
+
+export function setSidebarImage(image: Blob): void {
+  setImageFromExtension(image);
+}
+
+export function setSidebarStatus(message: string): void {
+  setStatusFromExtension(message);
+}
 
 export function initializeSidebar(provider?: DescriptionProvider): void {
   if (state) {
@@ -83,7 +95,7 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
 
   cancelButton?.addEventListener("click", cancelRequest);
 
-  function showImage(image: File): void {
+  function showImage(image: Blob): void {
     revokePreviewUrl();
     state!.image = image;
     state!.previewUrl = URL.createObjectURL(image);
@@ -213,6 +225,10 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     }
   }
 
+  setImageFromExtension = showImage;
+  setStatusFromExtension = (message) => {
+    status.textContent = message;
+  };
   updateAvailability = updateDescribeAvailability;
   updateDescribeAvailability();
 }
@@ -239,4 +255,67 @@ if (
   document.querySelector("#paste-target")
 ) {
   initializeSidebar();
+  void loadSidebarState();
+}
+
+async function loadSidebarState(): Promise<void> {
+  if (typeof browser === "undefined") {
+    return;
+  }
+
+  try {
+    const stored = await browser.storage.local.get(["providerConfig"]);
+    if (isProviderConfig(stored.providerConfig)) {
+      initializeSidebar(createDescriptionProvider(stored.providerConfig));
+    }
+  } catch {
+    // The sidebar remains usable for paste-only operation when storage is unavailable.
+  }
+
+  try {
+    const pending = await browser.runtime.sendMessage({
+      type: "get-pending-image",
+    });
+    if (isPendingImage(pending)) {
+      setSidebarImage(pending.image);
+    } else if (isPendingError(pending)) {
+      setSidebarStatus(pending.error);
+    }
+  } catch {
+    // A sidebar opened without the optional context-menu feature has no pending image.
+  }
+}
+
+function isPendingImage(value: unknown): value is { image: Blob } {
+  return (
+    typeof Blob !== "undefined" &&
+    typeof value === "object" &&
+    value !== null &&
+    "image" in value &&
+    value.image instanceof Blob
+  );
+}
+
+function isPendingError(value: unknown): value is { error: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "error" in value &&
+    typeof value.error === "string"
+  );
+}
+
+function isProviderConfig(value: unknown): value is ProviderConfig {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+  const config = value as Record<string, unknown>;
+  return (
+    typeof config.baseUrl === "string" &&
+    typeof config.model === "string" &&
+    (config.authentication === "none" || config.authentication === "bearer") &&
+    typeof config.apiKey === "string" &&
+    config.baseUrl.length > 0 &&
+    config.model.length > 0
+  );
 }

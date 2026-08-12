@@ -65,6 +65,11 @@ Studio server.
 6. Select **Copy description** only after the result is shown. Copying is never
    automatic.
 
+If the optional right-click feature is enabled in **Options**, right-click an
+image and choose **Describe this image**. Firefox requests the additional
+permissions before enabling this action; the extension captures and crops only
+the selected image from the selected tab.
+
 Reloading or closing the sidebar discards the pasted image and generated
 description. Nothing in this workflow is written to extension storage.
 

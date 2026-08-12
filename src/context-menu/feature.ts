@@ -9,6 +9,14 @@ export async function enableImageContextMenu(): Promise<boolean> {
     if (!granted) {
       return false;
     }
+    return createImageContextMenu();
+  } catch {
+    return false;
+  }
+}
+
+export async function createImageContextMenu(): Promise<boolean> {
+  try {
     await browser.contextMenus.create({
       id: contextMenuId,
       title: "Describe this image",
