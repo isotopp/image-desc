@@ -4,6 +4,7 @@ import type { ProviderConfig } from "../provider/config";
 
 type SidebarState = {
   provider?: DescriptionProvider;
+  providerKind?: ProviderKind;
   image?: Blob;
   previewUrl?: string;
   active: boolean;
@@ -11,6 +12,8 @@ type SidebarState = {
   requestId: number;
   timeoutId?: ReturnType<typeof setTimeout>;
 };
+
+type ProviderKind = "openai" | "local";
 
 let state: SidebarState | undefined;
 let updateAvailability: () => void = () => undefined;
@@ -25,9 +28,13 @@ export function setSidebarStatus(message: string): void {
   setStatusFromExtension(message);
 }
 
-export function initializeSidebar(provider?: DescriptionProvider): void {
+export function initializeSidebar(
+  provider?: DescriptionProvider,
+  providerKind?: ProviderKind,
+): void {
   if (state) {
     state.provider = provider;
+    state.providerKind = provider ? (providerKind ?? "local") : undefined;
     updateAvailability();
     return;
   }
@@ -42,10 +49,17 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     requiredElement<HTMLButtonElement>("#copy-description");
   const describeButton = document.querySelector<HTMLButtonElement>("#describe");
   const cancelButton = document.querySelector<HTMLButtonElement>("#cancel");
+  const providerStatus =
+    document.querySelector<HTMLElement>("#provider-status");
   const context =
     document.querySelector<HTMLTextAreaElement>("#manual-context");
 
-  state = { provider, active: false, requestId: 0 };
+  state = {
+    provider,
+    providerKind: provider ? (providerKind ?? "local") : undefined,
+    active: false,
+    requestId: 0,
+  };
 
   pasteTarget.addEventListener("paste", (event: ClipboardEvent) => {
     const clipboardData = event.clipboardData;
@@ -223,6 +237,25 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     if (cancelButton) {
       cancelButton.hidden = !state?.active;
     }
+    renderProviderStatus();
+  }
+
+  function renderProviderStatus(): void {
+    if (!providerStatus) {
+      return;
+    }
+    providerStatus.replaceChildren();
+    if (!state?.provider) {
+      const link = document.createElement("a");
+      link.href = "../options/options.html";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "No provider configured";
+      providerStatus.append(link);
+      return;
+    }
+    providerStatus.textContent =
+      state.providerKind === "openai" ? "Using OpenAI" : "Using Local Provider";
   }
 
   setImageFromExtension = showImage;
@@ -266,7 +299,10 @@ async function loadSidebarState(): Promise<void> {
   try {
     const stored = await browser.storage.local.get(["providerConfig"]);
     if (isProviderConfig(stored.providerConfig)) {
-      initializeSidebar(createDescriptionProvider(stored.providerConfig));
+      initializeSidebar(
+        createDescriptionProvider(stored.providerConfig),
+        providerKindForConfig(stored.providerConfig),
+      );
     }
   } catch {
     // The sidebar remains usable for paste-only operation when storage is unavailable.
@@ -284,6 +320,18 @@ async function loadSidebarState(): Promise<void> {
   } catch {
     // A sidebar opened without the optional context-menu feature has no pending image.
   }
+}
+
+function providerKindForConfig(config: ProviderConfig): ProviderKind {
+  const authority = config.baseUrl
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z][a-z\d+.-]*:\/\//, "")
+    .split(/[/?#]/, 1)[0]
+    .replace(/:\d+$/, "");
+  return authority === "api.openai.com" || authority.endsWith(".openai.com")
+    ? "openai"
+    : "local";
 }
 
 function isPendingImage(value: unknown): value is { image: Blob } {

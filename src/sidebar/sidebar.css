@@ -87,6 +87,12 @@ img {
   align-self: flex-start;
 }
 
+.provider-status {
+  margin: 0;
+  color: GrayText;
+  font-size: 0.9rem;
+}
+
 button {
   min-height: 2.5rem;
   padding-inline: 0.8rem;
