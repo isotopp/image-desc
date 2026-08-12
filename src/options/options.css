@@ -1,0 +1,37 @@
+:root {
+  color-scheme: light dark;
+  font: message-box;
+}
+
+body {
+  margin: 0;
+  background: Canvas;
+  color: CanvasText;
+}
+
+main {
+  max-width: 42rem;
+  padding: 2rem;
+}
+
+form {
+  display: grid;
+  gap: 0.6rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  min-height: 2.2rem;
+}
+
+button {
+  margin-block-start: 0.8rem;
+  width: fit-content;
+  padding-inline: 1rem;
+}
+
+#status {
+  min-height: 1.4rem;
+}

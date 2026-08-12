@@ -28,6 +28,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         sidebar: resolve(projectRoot, "src/sidebar/sidebar.html"),
+        options: resolve(projectRoot, "src/options/options.html"),
         background: resolve(projectRoot, "src/background.ts"),
       },
       output: {
