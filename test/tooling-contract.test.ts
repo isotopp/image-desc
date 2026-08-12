@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 describe("contributor tooling contract", () => {
@@ -24,5 +24,10 @@ describe("contributor tooling contract", () => {
     const agents = readFileSync("AGENTS.md", "utf8").trim();
     const headings = agents.match(/^## .+$/gm) ?? [];
     expect(headings.at(-1)).toBe("## Agent guardrails");
+  });
+
+  it("keeps one authoritative source manifest", () => {
+    expect(existsSync("src/manifest.json")).toBe(true);
+    expect(existsSync("manifest.json")).toBe(false);
   });
 });

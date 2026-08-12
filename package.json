@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "package": "npm run build && web-ext build --source-dir build --artifacts-dir web-ext-artifacts --overwrite-dest"
+    "package": "npm run build && web-ext build --source-dir build --artifacts-dir web-ext-artifacts --overwrite-dest",
+    "source-package": "bash scripts/package-source.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

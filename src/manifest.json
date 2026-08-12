@@ -3,6 +3,18 @@
   "name": "Image Description",
   "version": "0.1.0",
   "description": "Describe an explicitly pasted image for blind and visually impaired people.",
+  "homepage_url": "https://github.com/isotopp/image-desc",
+  "developer": {
+    "name": "Kris Köhntopp",
+    "url": "https://github.com/isotopp/image-desc"
+  },
+  "icons": {
+    "32": "icons/image-description-32.png",
+    "48": "icons/image-description-48.png",
+    "64": "icons/image-description-64.png",
+    "96": "icons/image-description-96.png",
+    "128": "icons/image-description-128.png"
+  },
   "background": {
     "scripts": ["background.js"]
   },
@@ -16,7 +28,11 @@
   "optional_permissions": ["activeTab", "scripting", "https://*/*"],
   "optional_host_permissions": ["https://*/*"],
   "action": {
-    "default_title": "Open Image Description"
+    "default_title": "Open Image Description",
+    "default_icon": {
+      "16": "icons/image-description-16.png",
+      "32": "icons/image-description-32.png"
+    }
   },
   "sidebar_action": {
     "default_title": "Image Description",
@@ -29,10 +45,14 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "image-description@local",
-      "strict_min_version": "140.0",
+      "id": "kris-imagedescription@koehntopp.de",
+      "strict_min_version": "142.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "websiteContent",
+          "personalCommunications",
+          "authenticationInfo"
+        ]
       }
     }
   }

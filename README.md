@@ -203,6 +203,18 @@ permits.
   you explicitly save. The optional right-click feature is disabled unless you
   enable it and grant its additional permissions.
 
+The extension developer does not receive or collect images, context, descriptions,
+credentials, or usage data. Requests go directly to the provider you configure.
+See the complete [privacy policy](PRIVACY.md) for the distinction between developer
+collection and provider data transmission.
+
+## Support and license
+
+For help, contact
+[kris-imagedescription@koehntopp.de](mailto:kris-imagedescription@koehntopp.de) or
+use the [project repository](https://github.com/isotopp/image-desc). Image
+Description is distributed under the [MIT License](LICENSE).
+
 ## Troubleshooting
 
 - **Describe image is disabled:** save a provider, return to the sidebar, and paste

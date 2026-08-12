@@ -1,0 +1,21 @@
+{
+  "default_locale": "en-US",
+  "summary": {
+    "en-US": "Create concise image descriptions for blind and low-vision readers with a provider you choose."
+  },
+  "description": {
+    "en-US": "Paste or explicitly select an image, optionally add context, and generate a concise description suitable for alt text. Image Description connects directly to an OpenAI-compatible local or remote provider configured by the user. Images and descriptions are not persisted."
+  },
+  "categories": ["photos-music-videos"],
+  "homepage": {
+    "en-US": "https://github.com/isotopp/image-desc"
+  },
+  "support_email": {
+    "en-US": "kris-imagedescription@koehntopp.de"
+  },
+  "requires_payment": false,
+  "version": {
+    "license": "MIT",
+    "approval_notes": "The submitted extension is built from TypeScript with Vite. Reproduction instructions are in SOURCE_BUILD.md in the accompanying source archive. This release supports desktop Firefox only."
+  }
+}

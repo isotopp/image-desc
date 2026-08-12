@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Image Description gallery icon</title>
+  <rect x="25" y="10" width="92" height="82" rx="13" fill="#4c8fa8" />
+  <rect x="11" y="25" width="94" height="92" rx="13" fill="#f7fafb" stroke="#19384f" stroke-width="8" />
+  <circle cx="78" cy="49" r="10" fill="#f2b84b" />
+  <path d="M15 99 43 60a8 8 0 0 1 13-1l17 22 9-11a7 7 0 0 1 11 0l8 10v23a10 10 0 0 1-10 10H24a9 9 0 0 1-9-9Z" fill="#3b9ba1" />
+  <path d="m51 104 19-25 7 9 10-13 14 17v12a9 9 0 0 1-9 9H51Z" fill="#24677f" />
+</svg>

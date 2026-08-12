@@ -24,10 +24,13 @@ npm run typecheck
 npm run format:check
 npm run build
 npm run package
+npm run source-package
 ```
 
 Run one focused Vitest file with `npx vitest run path/to/test.ts`. Use `npm run
-format` when intentionally applying Prettier changes.
+format` when intentionally applying Prettier changes. `npm run source-package`
+requires a clean Git worktree so the reviewer archive corresponds exactly to a
+commit.
 
 ## Testing expectations
 

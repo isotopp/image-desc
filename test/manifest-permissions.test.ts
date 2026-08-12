@@ -85,6 +85,10 @@ describe("extension permission budget", () => {
     expect(
       manifest.browser_specific_settings?.gecko?.data_collection_permissions
         ?.required,
-    ).toEqual(["none"]);
+    ).toEqual([
+      "websiteContent",
+      "personalCommunications",
+      "authenticationInfo",
+    ]);
   });
 });
