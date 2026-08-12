@@ -4,6 +4,12 @@ A rights-minimal Firefox extension scaffold for creating accessible descriptions
 of images. The initial interface accepts an image only when the user explicitly
 pastes it into the extension sidebar.
 
+## Development baseline
+
+Use Node.js 22 LTS or another supported release in the range declared by
+`package.json`. Install dependencies with `npm install`; run the baseline checks with
+`npm test` and create a development build with `npm run build`.
+
 ## Load from disk
 
 1. Open `about:debugging` in Firefox.
