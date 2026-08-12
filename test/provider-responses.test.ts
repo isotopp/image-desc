@@ -51,4 +51,62 @@ describe("Responses API description provider", () => {
     ).resolves.toBe("A clear description.");
     expect(fetcher).toHaveBeenCalledOnce();
   });
+
+  it("sends a bearer token when bearer authentication is configured", async () => {
+    const fetcher = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        expect(new Headers(init?.headers).get("Authorization")).toBe(
+          "Bearer user-key",
+        );
+        return new Response(
+          JSON.stringify({
+            output: [{ content: [{ type: "output_text", text: "Done." }] }],
+          }),
+          { status: 200 },
+        );
+      },
+    );
+    const provider = createDescriptionProvider(
+      {
+        baseUrl: "https://api.example.test",
+        model: "vision-model",
+        authentication: "bearer",
+        apiKey: "user-key",
+      },
+      fetcher,
+    );
+
+    await provider.describe({
+      image: new Blob(["pixels"], { type: "image/png" }),
+      signal: new AbortController().signal,
+    });
+  });
+
+  it("omits authorization when authentication is disabled", async () => {
+    const fetcher = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        expect(new Headers(init?.headers).has("Authorization")).toBe(false);
+        return new Response(
+          JSON.stringify({
+            output: [{ content: [{ type: "output_text", text: "Done." }] }],
+          }),
+          { status: 200 },
+        );
+      },
+    );
+    const provider = createDescriptionProvider(
+      {
+        baseUrl: "https://api.example.test",
+        model: "vision-model",
+        authentication: "none",
+        apiKey: "ignored-key",
+      },
+      fetcher,
+    );
+
+    await provider.describe({
+      image: new Blob(["pixels"], { type: "image/png" }),
+      signal: new AbortController().signal,
+    });
+  });
 });

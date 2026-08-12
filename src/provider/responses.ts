@@ -20,11 +20,15 @@ export function createDescriptionProvider(
   return {
     async describe(request): Promise<string> {
       const imageUrl = await blobToDataUrl(request.image);
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (config.authentication === "bearer") {
+        headers.Authorization = `Bearer ${config.apiKey}`;
+      }
       const response = await fetcher(
         `${config.baseUrl.replace(/\/$/, "")}/v1/responses`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify({
             model: config.model,
             input: [
