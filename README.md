@@ -168,8 +168,9 @@ right-click shortcut:
 2. Find **Optional right-click convenience**.
 3. Read the explanation of the additional Firefox permissions.
 4. Turn on **Enable “Describe this image” in image context menus**.
-5. Review Firefox's request for `menus`, `activeTab`, and `scripting`, then select
-   **Allow** if you accept the temporary access.
+5. Firefox requests the context-menu API permission when the extension is
+   installed. When you enable this option, review the additional `activeTab` and
+   `scripting` request, then select **Allow** if you accept the temporary access.
 6. In a Firefox tab, right-click the image you want to describe.
 7. Select **Describe this image**.
 8. The sidebar opens with a local crop of that selected image. Add context if you

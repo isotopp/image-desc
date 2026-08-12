@@ -35,15 +35,18 @@ describe("extension permission budget", () => {
     ).toBe(false);
   });
 
-  it("declares future convenience permissions as optional", () => {
+  it("keeps the context-menu API permission required but tab access optional", () => {
     const manifest = JSON.parse(
       readFileSync("build/manifest.json", "utf8"),
     ) as Manifest;
+    const required = manifest.permissions ?? [];
     const optional = manifest.optional_permissions ?? [];
 
+    expect(required).toContain("contextMenus");
     expect(optional).toEqual(
-      expect.arrayContaining(["menus", "activeTab", "scripting"]),
+      expect.arrayContaining(["activeTab", "scripting"]),
     );
+    expect(optional).not.toContain("menus");
     expect(manifest.optional_host_permissions ?? []).not.toContain(
       "<all_urls>",
     );

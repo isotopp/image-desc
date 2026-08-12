@@ -53,8 +53,10 @@ Then use a clean Firefox profile or **This Firefox** in `about:debugging`.
 
 - [ ] In **Options**, review the access explanation and enable **Describe this
       image** for image context menus.
-- [ ] Confirm Firefox requests only `menus`, `activeTab`, and `scripting`; deny the
-      request once and confirm the checkbox remains off and no menu is created.
+- [ ] Confirm the extension's install-time permission list contains only the
+      context-menu API permission for this feature; when enabling the option,
+      Firefox requests only `activeTab` and `scripting`. Deny that request once
+      and confirm the checkbox remains off and no menu is created.
 - [ ] With permission granted, right-click one image and choose **Describe this
       image**. Confirm the sidebar opens with only that image selected.
 - [ ] Confirm the provider request contains the local crop of the selected image,

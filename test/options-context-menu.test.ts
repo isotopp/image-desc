@@ -55,7 +55,7 @@ describe("optional image context menu", () => {
     await settle();
 
     expect(request).toHaveBeenCalledWith({
-      permissions: ["menus", "activeTab", "scripting"],
+      permissions: ["activeTab", "scripting"],
     });
     expect(create).toHaveBeenCalledWith({
       id: "describe-image",
@@ -94,7 +94,7 @@ describe("optional image context menu", () => {
 
     expect(removeMenu).toHaveBeenCalledWith("describe-image");
     expect(remove).toHaveBeenCalledWith({
-      permissions: ["menus", "activeTab", "scripting"],
+      permissions: ["activeTab", "scripting"],
     });
     expect(checkbox.checked).toBe(false);
     expect(document.querySelector("#status")?.textContent).toBe(
@@ -113,7 +113,7 @@ describe("optional image context menu", () => {
     await settle();
 
     expect(remove).toHaveBeenCalledWith({
-      permissions: ["menus", "activeTab", "scripting"],
+      permissions: ["activeTab", "scripting"],
     });
     expect(document.querySelector("#status")?.textContent).toBe(
       "Could not disable the image context menu.",

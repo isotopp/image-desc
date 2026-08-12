@@ -227,7 +227,9 @@ and descriptions are intended for public social-media posts.
 ### Acceptance criteria
 
 - The paste workflow remains usable without enabling this feature.
-- Enabling it requests only `menus`, `activeTab`, and the minimum scripting access.
+- Firefox requires the context-menu API permission in the install-time manifest;
+  the menu item is still created only after opt-in, and enabling it requests only
+  `activeTab` and the minimum scripting access at runtime.
 - It acts only on the image and tab selected by the user's context-menu action.
 - It does not introduce `<all_urls>`, persistent content scripts, or background page
   inspection.

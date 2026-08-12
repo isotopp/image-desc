@@ -1,5 +1,5 @@
 const contextMenuId = "describe-image";
-const contextMenuPermissions = ["menus", "activeTab", "scripting"];
+const contextMenuPermissions = ["activeTab", "scripting"];
 
 export async function enableImageContextMenu(): Promise<boolean> {
   try {

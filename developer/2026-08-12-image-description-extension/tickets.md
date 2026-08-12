@@ -131,8 +131,9 @@ permissions.
 
 - The manifest contract test passes against the actual build input or generated
   manifest.
-- Optional provider-origin permissions and the optional context-menu permissions are
-  distinguishable from required permissions.
+- Optional provider-origin, active-tab, and scripting permissions are distinguishable
+  from the required context-menu API permission; the context-menu item itself is
+  created only after opt-in.
 - No application feature is granted page or clipboard access at startup.
 
 ## Ticket 5 — Paste an image and display its preview
@@ -606,8 +607,10 @@ additional Firefox permissions.
 
 ### TDD cycles
 
-1. **RED → GREEN:** Enable the option, request only `menus`, `activeTab`, and minimum
-   scripting access, then create **Describe this image** for image contexts.
+1. **RED → GREEN:** Enable the option, request only `activeTab` and minimum
+   scripting access at runtime (Firefox requires the context-menu API permission
+   in the install-time manifest), then create **Describe this image** for image
+   contexts.
 2. **RED → GREEN:** Deny permission and leave the option and menu disabled.
 3. **RED → GREEN:** Disable the option, remove the menu, and release optional
    permissions where Firefox permits.
@@ -616,6 +619,8 @@ additional Firefox permissions.
 ### Acceptance criteria
 
 - The options page explains the additional access before enablement.
+- The context-menu API permission is declared at install time because Firefox does
+  not accept it in `optional_permissions`; the menu item itself remains opt-in.
 - The existing paste workflow works without these permissions.
 - No `<all_urls>` or persistent content script is introduced.
 - The menu appears only in Firefox image contexts.

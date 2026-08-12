@@ -6,7 +6,8 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "optional_permissions": ["menus", "activeTab", "scripting"],
+  "permissions": ["contextMenus"],
+  "optional_permissions": ["activeTab", "scripting"],
   "action": {
     "default_title": "Open Image Description"
   },
