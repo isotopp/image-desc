@@ -13,4 +13,7 @@ declare const browser: {
       set(items: Record<string, unknown>): Promise<void>;
     };
   };
+  permissions: {
+    request(details: { origins: string[] }): Promise<boolean>;
+  };
 };

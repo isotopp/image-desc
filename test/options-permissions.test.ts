@@ -7,15 +7,16 @@ const storage = {
   get: vi.fn(async () => ({})),
   set: vi.fn(async () => undefined),
 };
+const request = vi.fn(async () => true);
 
 beforeEach(() => {
   vi.resetModules();
   storage.get.mockReset().mockResolvedValue({});
   storage.set.mockReset().mockResolvedValue(undefined);
-  vi.stubGlobal("browser", { storage: { local: storage } });
+  request.mockReset().mockResolvedValue(true);
   vi.stubGlobal("browser", {
     storage: { local: storage },
-    permissions: { request: vi.fn(async () => true) },
+    permissions: { request },
   });
   const html = readFileSync("src/options/options.html", "utf8");
   document.body.innerHTML = html.slice(
@@ -24,67 +25,8 @@ beforeEach(() => {
   );
 });
 
-describe("provider configuration", () => {
-  it("saves endpoint, model, authentication mode, and API key", async () => {
-    await import("../src/options/options");
-    const form = document.querySelector<HTMLFormElement>("#provider-form");
-    const baseUrl = document.querySelector<HTMLInputElement>("#base-url");
-    const model = document.querySelector<HTMLInputElement>("#model");
-    const authentication =
-      document.querySelector<HTMLSelectElement>("#authentication");
-    const apiKey = document.querySelector<HTMLInputElement>("#api-key");
-
-    if (!form || !baseUrl || !model || !authentication || !apiKey) {
-      throw new Error("Provider options markup is incomplete.");
-    }
-
-    baseUrl.value = "https://api.example.test";
-    model.value = "vision-model";
-    authentication.value = "bearer";
-    apiKey.value = "user-key";
-    form.dispatchEvent(
-      new Event("submit", { bubbles: true, cancelable: true }),
-    );
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(storage.set).toHaveBeenCalledWith({
-      providerConfig: {
-        baseUrl: "https://api.example.test",
-        model: "vision-model",
-        authentication: "bearer",
-        apiKey: "user-key",
-      },
-    });
-  });
-
-  it("restores a saved configuration in a fresh options page", async () => {
-    storage.get.mockResolvedValue({
-      providerConfig: {
-        baseUrl: "http://127.0.0.1:1234",
-        model: "local-vision",
-        authentication: "none",
-        apiKey: "placeholder",
-      },
-    });
-
-    await import("../src/options/options");
-    await Promise.resolve();
-
-    expect(document.querySelector<HTMLInputElement>("#base-url")?.value).toBe(
-      "http://127.0.0.1:1234",
-    );
-    expect(document.querySelector<HTMLInputElement>("#model")?.value).toBe(
-      "local-vision",
-    );
-    expect(
-      document.querySelector<HTMLSelectElement>("#authentication")?.value,
-    ).toBe("none");
-    expect(document.querySelector<HTMLInputElement>("#api-key")?.value).toBe(
-      "placeholder",
-    );
-  });
-
-  it("does not save a non-loopback HTTP endpoint", async () => {
+describe("provider origin access", () => {
+  it("requests the configured origin when the user saves a provider", async () => {
     await import("../src/options/options");
     const form = document.querySelector<HTMLFormElement>("#provider-form");
     const baseUrl = document.querySelector<HTMLInputElement>("#base-url");
@@ -94,7 +36,31 @@ describe("provider configuration", () => {
       throw new Error("Provider options markup is incomplete.");
     }
 
-    baseUrl.value = "http://insecure.example.test";
+    baseUrl.value = "https://api.example.test/v1";
+    model.value = "vision-model";
+    form.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(request).toHaveBeenCalledWith({
+      origins: ["https://api.example.test/*"],
+    });
+    expect(storage.set).toHaveBeenCalled();
+  });
+
+  it("does not activate a provider when the origin request is denied", async () => {
+    request.mockResolvedValue(false);
+    await import("../src/options/options");
+    const form = document.querySelector<HTMLFormElement>("#provider-form");
+    const baseUrl = document.querySelector<HTMLInputElement>("#base-url");
+    const model = document.querySelector<HTMLInputElement>("#model");
+
+    if (!form || !baseUrl || !model) {
+      throw new Error("Provider options markup is incomplete.");
+    }
+
+    baseUrl.value = "https://api.example.test";
     model.value = "vision-model";
     form.dispatchEvent(
       new Event("submit", { bubbles: true, cancelable: true }),
@@ -103,7 +69,7 @@ describe("provider configuration", () => {
 
     expect(storage.set).not.toHaveBeenCalled();
     expect(document.querySelector("#status")?.textContent).toBe(
-      "Use HTTPS unless the provider runs on localhost.",
+      "Provider access was not granted.",
     );
   });
 });

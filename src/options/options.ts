@@ -1,4 +1,5 @@
 import { emptyProviderConfig, type ProviderConfig } from "../provider/config";
+import { requestProviderOriginAccess } from "../provider/permissions";
 import { validateProviderUrl } from "../provider/url";
 
 const form = requiredElement<HTMLFormElement>("#provider-form");
@@ -27,6 +28,12 @@ async function saveConfiguration(): Promise<void> {
   const urlValidation = validateProviderUrl(baseUrl.value.trim());
   if (!urlValidation.valid) {
     status.textContent = urlValidation.message;
+    return;
+  }
+
+  const originGranted = await requestProviderOriginAccess(urlValidation.url);
+  if (!originGranted) {
+    status.textContent = "Provider access was not granted.";
     return;
   }
 
