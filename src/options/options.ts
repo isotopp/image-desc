@@ -1,5 +1,9 @@
 import { emptyProviderConfig, type ProviderConfig } from "../provider/config";
 import {
+  disableImageContextMenu,
+  enableImageContextMenu,
+} from "../context-menu/feature";
+import {
   requestProviderOriginAccess,
   revokeProviderOriginAccess,
 } from "../provider/permissions";
@@ -13,6 +17,9 @@ const apiKey = requiredElement<HTMLInputElement>("#api-key");
 const removeProviderButton =
   requiredElement<HTMLButtonElement>("#remove-provider");
 const status = requiredElement<HTMLElement>("#status");
+const contextMenuCheckbox = requiredElement<HTMLInputElement>(
+  "#enable-context-menu",
+);
 let activeProviderConfig: ProviderConfig | undefined;
 
 void loadConfiguration();
@@ -26,6 +33,10 @@ removeProviderButton.addEventListener("click", () => {
   void removeProvider();
 });
 
+contextMenuCheckbox.addEventListener("change", () => {
+  void updateContextMenu();
+});
+
 async function loadConfiguration(): Promise<void> {
   const stored = await browser.storage.local.get(["providerConfig"]);
   const config = isProviderConfig(stored.providerConfig)
@@ -33,6 +44,28 @@ async function loadConfiguration(): Promise<void> {
     : emptyProviderConfig;
   activeProviderConfig = config.baseUrl && config.model ? config : undefined;
   applyConfiguration(config);
+  contextMenuCheckbox.checked = stored.contextMenuEnabled === true;
+}
+
+async function updateContextMenu(): Promise<void> {
+  if (contextMenuCheckbox.checked) {
+    const enabled = await enableImageContextMenu();
+    if (!enabled) {
+      contextMenuCheckbox.checked = false;
+      await browser.storage.local.set({ contextMenuEnabled: false });
+      status.textContent = "Image context menu permission was not granted.";
+      return;
+    }
+    await browser.storage.local.set({ contextMenuEnabled: true });
+    status.textContent = "Image context menu enabled.";
+    return;
+  }
+
+  const disabled = await disableImageContextMenu();
+  await browser.storage.local.set({ contextMenuEnabled: false });
+  status.textContent = disabled
+    ? "Image context menu disabled."
+    : "Could not disable the image context menu.";
 }
 
 async function saveConfiguration(): Promise<void> {

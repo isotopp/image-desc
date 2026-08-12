@@ -7,6 +7,14 @@ declare const browser: {
   sidebarAction: {
     open(): Promise<void>;
   };
+  contextMenus: {
+    create(details: {
+      id: string;
+      title: string;
+      contexts: string[];
+    }): string | number | Promise<string | number>;
+    remove(id: string | number): Promise<void>;
+  };
   storage: {
     local: {
       get(keys?: string[] | null): Promise<Record<string, unknown>>;
@@ -15,7 +23,13 @@ declare const browser: {
     };
   };
   permissions: {
-    request(details: { origins: string[] }): Promise<boolean>;
-    remove(details: { origins: string[] }): Promise<boolean>;
+    request(details: {
+      origins?: string[];
+      permissions?: string[];
+    }): Promise<boolean>;
+    remove(details: {
+      origins?: string[];
+      permissions?: string[];
+    }): Promise<boolean>;
   };
 };
