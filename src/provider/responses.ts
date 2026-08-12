@@ -10,6 +10,16 @@ export type DescriptionProvider = {
   describe(request: DescriptionRequest): Promise<string>;
 };
 
+export class ProviderError extends Error {
+  constructor(
+    public readonly code: "network" | "http" | "invalid-response",
+    message: string,
+  ) {
+    super(message);
+    this.name = "ProviderError";
+  }
+}
+
 export const baseDescriptionPrompt =
   "Provide an image description for the visually impaired that fits into 1300 characters or less.";
 
@@ -24,27 +34,49 @@ export function createDescriptionProvider(
       if (config.authentication === "bearer") {
         headers.Authorization = `Bearer ${config.apiKey}`;
       }
-      const response = await fetcher(
-        `${config.baseUrl.replace(/\/$/, "")}/v1/responses`,
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            model: config.model,
-            input: [
-              {
-                role: "user",
-                content: [
-                  { type: "input_text", text: buildPrompt(request.context) },
-                  { type: "input_image", image_url: imageUrl },
-                ],
-              },
-            ],
-          }),
-          signal: request.signal,
-        },
-      );
-      const payload = (await response.json()) as ResponsesPayload;
+      let response: Response;
+      try {
+        response = await fetcher(
+          `${config.baseUrl.replace(/\/$/, "")}/v1/responses`,
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              model: config.model,
+              input: [
+                {
+                  role: "user",
+                  content: [
+                    { type: "input_text", text: buildPrompt(request.context) },
+                    { type: "input_image", image_url: imageUrl },
+                  ],
+                },
+              ],
+            }),
+            signal: request.signal,
+          },
+        );
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          throw error;
+        }
+        throw new ProviderError(
+          "network",
+          "The provider could not be reached.",
+        );
+      }
+      if (!response.ok) {
+        throw new ProviderError("http", "The provider rejected the request.");
+      }
+      let payload: ResponsesPayload;
+      try {
+        payload = (await response.json()) as ResponsesPayload;
+      } catch {
+        throw new ProviderError(
+          "invalid-response",
+          "The provider returned invalid data.",
+        );
+      }
       return extractDescription(payload);
     },
   };
@@ -70,7 +102,10 @@ function extractDescription(payload: ResponsesPayload): string {
     ?.flatMap((item) => item.content ?? [])
     .find((item) => item.type === "output_text")?.text;
   if (!text) {
-    throw new Error("The provider returned no description.");
+    throw new ProviderError(
+      "invalid-response",
+      "The provider returned no description.",
+    );
   }
   return text;
 }
