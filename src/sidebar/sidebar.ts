@@ -69,8 +69,12 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
   removeImageButton.addEventListener("click", reset);
 
   copyDescriptionButton.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(description.textContent ?? "");
-    status.textContent = "Description copied to the clipboard.";
+    try {
+      await navigator.clipboard.writeText(description.textContent ?? "");
+      status.textContent = "Description copied to the clipboard.";
+    } catch {
+      status.textContent = "Could not copy the description.";
+    }
   });
 
   describeButton?.addEventListener("click", () => {
