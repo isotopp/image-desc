@@ -5,6 +5,8 @@ type SidebarState = {
   image?: File;
   previewUrl?: string;
   active: boolean;
+  controller?: AbortController;
+  requestId: number;
 };
 
 let state: SidebarState | undefined;
@@ -26,10 +28,11 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
   const copyDescriptionButton =
     requiredElement<HTMLButtonElement>("#copy-description");
   const describeButton = document.querySelector<HTMLButtonElement>("#describe");
+  const cancelButton = document.querySelector<HTMLButtonElement>("#cancel");
   const context =
     document.querySelector<HTMLTextAreaElement>("#manual-context");
 
-  state = { provider, active: false };
+  state = { provider, active: false, requestId: 0 };
 
   pasteTarget.addEventListener("paste", (event: ClipboardEvent) => {
     const clipboardData = event.clipboardData;
@@ -73,6 +76,8 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     void describeImage();
   });
 
+  cancelButton?.addEventListener("click", cancelRequest);
+
   function showImage(image: File): void {
     revokePreviewUrl();
     state!.image = image;
@@ -105,28 +110,55 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     if (!state?.provider || !state.image || state.active) {
       return;
     }
+    const requestId = ++state.requestId;
+    const controller = new AbortController();
+    state.controller = controller;
     state.active = true;
-    describeButton!.disabled = true;
     status.textContent = "Creating description…";
     description.hidden = true;
     copyDescriptionButton.hidden = true;
+    updateDescribeAvailability();
 
     try {
       const result = await state.provider.describe({
         image: state.image,
         context: context?.value,
-        signal: new AbortController().signal,
+        signal: controller.signal,
       });
+      if (state.requestId !== requestId || !state.active) {
+        return;
+      }
       description.textContent = result;
       description.hidden = false;
       copyDescriptionButton.hidden = false;
       status.textContent = "Description ready.";
-    } catch {
-      status.textContent = "Could not create a description.";
+    } catch (error) {
+      if (state.requestId !== requestId || !state.active) {
+        return;
+      }
+      status.textContent = isAbortError(error)
+        ? "Canceled."
+        : "Could not create a description.";
     } finally {
-      state.active = false;
-      updateDescribeAvailability();
+      if (state.requestId === requestId) {
+        state.active = false;
+        state.controller = undefined;
+        updateDescribeAvailability();
+      }
     }
+  }
+
+  function cancelRequest(): void {
+    if (!state?.active || !state.controller) {
+      return;
+    }
+    const controller = state.controller;
+    state.requestId += 1;
+    state.controller = undefined;
+    state.active = false;
+    controller.abort();
+    status.textContent = "Canceled.";
+    updateDescribeAvailability();
   }
 
   function revokePreviewUrl(): void {
@@ -141,10 +173,22 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
       describeButton.disabled =
         !state?.provider || !state.image || state.active;
     }
+    if (cancelButton) {
+      cancelButton.hidden = !state?.active;
+    }
   }
 
   updateAvailability = updateDescribeAvailability;
   updateDescribeAvailability();
+}
+
+function isAbortError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AbortError"
+  );
 }
 
 function requiredElement<T extends Element>(selector: string): T {
