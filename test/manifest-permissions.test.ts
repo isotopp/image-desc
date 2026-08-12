@@ -43,6 +43,7 @@ describe("extension permission budget", () => {
     const optional = manifest.optional_permissions ?? [];
 
     expect(required).toContain("contextMenus");
+    expect(required).toContain("storage");
     expect(optional).toEqual(
       expect.arrayContaining(["activeTab", "scripting"]),
     );

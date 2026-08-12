@@ -71,6 +71,22 @@ img {
   padding-inline-start: 0.75rem;
 }
 
+#context-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#manual-context {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+}
+
+#context-section button {
+  align-self: flex-start;
+}
+
 button {
   min-height: 2.5rem;
   padding-inline: 0.8rem;
