@@ -14,9 +14,8 @@ const preview = requiredElement<HTMLImageElement>("#preview");
 const removeImageButton = requiredElement<HTMLButtonElement>("#remove-image");
 const status = requiredElement<HTMLParagraphElement>("#status");
 const description = requiredElement<HTMLDivElement>("#description");
-const copyDescriptionButton = requiredElement<HTMLButtonElement>(
-  "#copy-description",
-);
+const copyDescriptionButton =
+  requiredElement<HTMLButtonElement>("#copy-description");
 
 let previewUrl: string | undefined;
 

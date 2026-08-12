@@ -15,8 +15,8 @@ describe("Firefox build output", () => {
 
     expect(manifest.background.scripts).toContain("background.js");
     expect(existsSync(resolve(buildRoot, "background.js"))).toBe(true);
-    expect(existsSync(resolve(buildRoot, manifest.sidebar_action.default_panel))).toBe(
-      true,
-    );
+    expect(
+      existsSync(resolve(buildRoot, manifest.sidebar_action.default_panel)),
+    ).toBe(true);
   });
 });
