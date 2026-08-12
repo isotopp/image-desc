@@ -10,10 +10,12 @@ declare const browser: {
   storage: {
     local: {
       get(keys?: string[] | null): Promise<Record<string, unknown>>;
+      remove(keys: string[]): Promise<void>;
       set(items: Record<string, unknown>): Promise<void>;
     };
   };
   permissions: {
     request(details: { origins: string[] }): Promise<boolean>;
+    remove(details: { origins: string[] }): Promise<boolean>;
   };
 };

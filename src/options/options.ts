@@ -1,5 +1,8 @@
 import { emptyProviderConfig, type ProviderConfig } from "../provider/config";
-import { requestProviderOriginAccess } from "../provider/permissions";
+import {
+  requestProviderOriginAccess,
+  revokeProviderOriginAccess,
+} from "../provider/permissions";
 import { validateProviderUrl } from "../provider/url";
 
 const form = requiredElement<HTMLFormElement>("#provider-form");
@@ -7,7 +10,10 @@ const baseUrl = requiredElement<HTMLInputElement>("#base-url");
 const model = requiredElement<HTMLInputElement>("#model");
 const authentication = requiredElement<HTMLSelectElement>("#authentication");
 const apiKey = requiredElement<HTMLInputElement>("#api-key");
+const removeProviderButton =
+  requiredElement<HTMLButtonElement>("#remove-provider");
 const status = requiredElement<HTMLElement>("#status");
+let activeProviderConfig: ProviderConfig | undefined;
 
 void loadConfiguration();
 
@@ -16,11 +22,16 @@ form.addEventListener("submit", (event) => {
   void saveConfiguration();
 });
 
+removeProviderButton.addEventListener("click", () => {
+  void removeProvider();
+});
+
 async function loadConfiguration(): Promise<void> {
   const stored = await browser.storage.local.get(["providerConfig"]);
   const config = isProviderConfig(stored.providerConfig)
     ? stored.providerConfig
     : emptyProviderConfig;
+  activeProviderConfig = config.baseUrl && config.model ? config : undefined;
   applyConfiguration(config);
 }
 
@@ -44,7 +55,41 @@ async function saveConfiguration(): Promise<void> {
     apiKey: apiKey.value,
   };
   await browser.storage.local.set({ providerConfig: config });
+  const previousConfig = activeProviderConfig;
+  activeProviderConfig = config;
+  const oldOrigin = previousConfig && providerUrl(previousConfig);
+  const newOrigin = providerUrl(config);
+  if (oldOrigin && newOrigin && oldOrigin.origin !== newOrigin.origin) {
+    const revoked = await revokeProviderOriginAccess(oldOrigin);
+    if (!revoked) {
+      status.textContent =
+        "Provider settings saved; previous origin access could not be revoked.";
+      return;
+    }
+  }
   status.textContent = "Provider settings saved.";
+}
+
+async function removeProvider(): Promise<void> {
+  const previousConfig = activeProviderConfig;
+  await browser.storage.local.remove(["providerConfig"]);
+  activeProviderConfig = undefined;
+  applyConfiguration(emptyProviderConfig);
+  const oldOrigin = previousConfig && providerUrl(previousConfig);
+  if (oldOrigin) {
+    const revoked = await revokeProviderOriginAccess(oldOrigin);
+    if (!revoked) {
+      status.textContent =
+        "Provider removed; previous origin access could not be revoked.";
+      return;
+    }
+  }
+  status.textContent = "Provider removed.";
+}
+
+function providerUrl(config: ProviderConfig): URL | undefined {
+  const validation = validateProviderUrl(config.baseUrl);
+  return validation.valid ? validation.url : undefined;
 }
 
 function applyConfiguration(config: ProviderConfig): void {
