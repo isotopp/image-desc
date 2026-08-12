@@ -7,6 +7,7 @@ type SidebarState = {
   active: boolean;
   controller?: AbortController;
   requestId: number;
+  timeoutId?: ReturnType<typeof setTimeout>;
 };
 
 let state: SidebarState | undefined;
@@ -113,6 +114,9 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     const requestId = ++state.requestId;
     const controller = new AbortController();
     state.controller = controller;
+    state.timeoutId = setTimeout(() => {
+      timeoutRequest(requestId, controller);
+    }, 120_000);
     state.active = true;
     status.textContent = "Creating description…";
     description.hidden = true;
@@ -141,6 +145,10 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
         : "Could not create a description.";
     } finally {
       if (state.requestId === requestId) {
+        if (state.timeoutId) {
+          clearTimeout(state.timeoutId);
+          state.timeoutId = undefined;
+        }
         state.active = false;
         state.controller = undefined;
         updateDescribeAvailability();
@@ -154,10 +162,30 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
     }
     const controller = state.controller;
     state.requestId += 1;
+    if (state.timeoutId) {
+      clearTimeout(state.timeoutId);
+      state.timeoutId = undefined;
+    }
     state.controller = undefined;
     state.active = false;
     controller.abort();
     status.textContent = "Canceled.";
+    updateDescribeAvailability();
+  }
+
+  function timeoutRequest(
+    requestId: number,
+    controller: AbortController,
+  ): void {
+    if (!state?.active || state.requestId !== requestId) {
+      return;
+    }
+    state.requestId += 1;
+    state.timeoutId = undefined;
+    state.controller = undefined;
+    state.active = false;
+    controller.abort();
+    status.textContent = "Request timed out.";
     updateDescribeAvailability();
   }
 
