@@ -21,7 +21,7 @@ export class ProviderError extends Error {
 }
 
 export const baseDescriptionPrompt =
-  "Provide an image description for the visually impaired that fits into 1300 characters or less.";
+  "Write concise alt text for blind and low-vision readers, using the supplied context to identify what matters. Describe the essential subjects, actions, setting, and relevant visible text. For diagrams or charts, give the main takeaway and describe important labels, values, elements, and relationships. Do not speculate about details that are unclear. Return only the description, in plain language, under 1,300 characters.";
 
 export function createDescriptionProvider(
   config: ProviderConfig,

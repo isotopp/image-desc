@@ -1,38 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { createDescriptionProvider } from "../src/provider/responses";
 
+const expectedBasePrompt =
+  "Write concise alt text for blind and low-vision readers, using the supplied context to identify what matters. Describe the essential subjects, actions, setting, and relevant visible text. For diagrams or charts, give the main takeaway and describe important labels, values, elements, and relationships. Do not speculate about details that are unclear. Return only the description, in plain language, under 1,300 characters.";
+
 describe("Responses API description provider", () => {
   it("sends one image request and returns the response text", async () => {
-    const fetcher = vi.fn(
-      async (input: RequestInfo | URL, init?: RequestInit) => {
-        expect(input).toBe("https://api.example.test/v1/responses");
-        const body = JSON.parse(String(init?.body));
-        expect(body.model).toBe("vision-model");
-        expect(body.input[0].content).toEqual([
-          {
-            type: "input_text",
-            text: "Provide an image description for the visually impaired that fits into 1300 characters or less.",
-          },
-          {
-            type: "input_image",
-            image_url: "data:image/png;base64,cGl4ZWxz",
-          },
-        ]);
-        return new Response(
-          JSON.stringify({
-            output: [
-              {
-                type: "message",
-                content: [
-                  { type: "output_text", text: "A clear description." },
-                ],
-              },
-            ],
-          }),
-          { status: 200 },
-        );
-      },
-    );
+    const fetcher = responseFetcher("A clear description.");
     const provider = createDescriptionProvider(
       {
         baseUrl: "https://api.example.test",
@@ -50,6 +24,20 @@ describe("Responses API description provider", () => {
       }),
     ).resolves.toBe("A clear description.");
     expect(fetcher).toHaveBeenCalledOnce();
+    const [input, init] = fetcher.mock.calls[0];
+    expect(input).toBe("https://api.example.test/v1/responses");
+    const body = JSON.parse(String(init?.body));
+    expect(body.model).toBe("vision-model");
+    expect(body.input[0].content).toEqual([
+      {
+        type: "input_text",
+        text: expectedBasePrompt,
+      },
+      {
+        type: "input_image",
+        image_url: "data:image/png;base64,cGl4ZWxz",
+      },
+    ]);
   });
 
   it("does not duplicate a /v1 path when it is included in the base URL", async () => {
@@ -137,20 +125,7 @@ describe("Responses API description provider", () => {
   });
 
   it("appends trimmed non-empty manual context to the input prompt", async () => {
-    const fetcher = vi.fn(
-      async (_input: RequestInfo | URL, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body));
-        expect(body.input[0].content[0].text).toBe(
-          "Provide an image description for the visually impaired that fits into 1300 characters or less.\n\nThe user provides the following additional context: A birthday post.",
-        );
-        return new Response(
-          JSON.stringify({
-            output: [{ content: [{ type: "output_text", text: "Done." }] }],
-          }),
-          { status: 200 },
-        );
-      },
-    );
+    const fetcher = responseFetcher("Done.");
     const provider = createDescriptionProvider(
       {
         baseUrl: "https://api.example.test",
@@ -166,23 +141,15 @@ describe("Responses API description provider", () => {
       context: "  A birthday post.  ",
       signal: new AbortController().signal,
     });
+
+    const body = requestBody(fetcher.mock.calls[0]?.[1]);
+    expect(body.input[0].content[0].text).toMatch(
+      /\n\nThe user provides the following additional context: A birthday post\.$/,
+    );
   });
 
   it("keeps the base prompt when manual context is whitespace only", async () => {
-    const fetcher = vi.fn(
-      async (_input: RequestInfo | URL, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body));
-        expect(body.input[0].content[0].text).toBe(
-          "Provide an image description for the visually impaired that fits into 1300 characters or less.",
-        );
-        return new Response(
-          JSON.stringify({
-            output: [{ content: [{ type: "output_text", text: "Done." }] }],
-          }),
-          { status: 200 },
-        );
-      },
-    );
+    const fetcher = responseFetcher("Done.");
     const provider = createDescriptionProvider(
       {
         baseUrl: "https://api.example.test",
@@ -198,5 +165,31 @@ describe("Responses API description provider", () => {
       context: " \n\t ",
       signal: new AbortController().signal,
     });
+
+    const body = requestBody(fetcher.mock.calls[0]?.[1]);
+    expect(body.input[0].content[0].text).not.toContain(
+      "The user provides the following additional context:",
+    );
   });
 });
+
+function descriptionResponse(text: string): Response {
+  return new Response(
+    JSON.stringify({
+      output: [{ content: [{ type: "output_text", text }] }],
+    }),
+    { status: 200 },
+  );
+}
+
+function responseFetcher(text: string) {
+  return vi.fn<typeof fetch>(async () => descriptionResponse(text));
+}
+
+type ProviderRequestBody = {
+  input: Array<{ content: Array<{ text: string }> }>;
+};
+
+function requestBody(init?: RequestInit): ProviderRequestBody {
+  return JSON.parse(String(init?.body));
+}

@@ -355,7 +355,7 @@ no longer needs.
 - The request includes the configured model.
 - The image is sent as a Base64 data URL in an `input_image` item.
 - The text input is exactly
-  `Provide an image description for the visually impaired that fits into 1300 characters or less.`
+  `Write concise alt text for blind and low-vision readers, using the supplied context to identify what matters. Describe the essential subjects, actions, setting, and relevant visible text. For diagrams or charts, give the main takeaway and describe important labels, values, elements, and relationships. Do not speculate about details that are unclear. Return only the description, in plain language, under 1,300 characters.`
 - The request contains no conversation state, `previous_response_id`, page URL,
   cookies, browsing history, or surrounding page text.
 - The returned description is obtained from a successful Responses API response.

@@ -181,7 +181,7 @@ interface DescriptionProvider {
 - A request contains the pasted image as a Base64 data URL in a Responses API
   `input_image` item.
 - With no manual context, the request uses exactly this text prompt:
-  `Provide an image description for the visually impaired that fits into 1300 characters or less.`
+  `Write concise alt text for blind and low-vision readers, using the supplied context to identify what matters. Describe the essential subjects, actions, setting, and relevant visible text. For diagrams or charts, give the main takeaway and describe important labels, values, elements, and relationships. Do not speculate about details that are unclear. Return only the description, in plain language, under 1,300 characters.`
 - When trimmed manual context is non-empty, the prompt appends a blank line followed
   by `The user provides the following additional context: ` and the context text.
 - Each description request is independent and does not send conversation state or a
