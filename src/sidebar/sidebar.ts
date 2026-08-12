@@ -140,6 +140,9 @@ export function initializeSidebar(provider?: DescriptionProvider): void {
       if (state.requestId !== requestId || !state.active) {
         return;
       }
+      description.textContent = "";
+      description.hidden = true;
+      copyDescriptionButton.hidden = true;
       status.textContent = isAbortError(error)
         ? "Canceled."
         : "Could not create a description.";
