@@ -109,4 +109,68 @@ describe("Responses API description provider", () => {
       signal: new AbortController().signal,
     });
   });
+
+  it("appends trimmed non-empty manual context to the input prompt", async () => {
+    const fetcher = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        const body = JSON.parse(String(init?.body));
+        expect(body.input[0].content[0].text).toBe(
+          "Provide an image description for the visually impaired that fits into 1300 characters or less.\n\nThe user provides the following additional context: A birthday post.",
+        );
+        return new Response(
+          JSON.stringify({
+            output: [{ content: [{ type: "output_text", text: "Done." }] }],
+          }),
+          { status: 200 },
+        );
+      },
+    );
+    const provider = createDescriptionProvider(
+      {
+        baseUrl: "https://api.example.test",
+        model: "vision-model",
+        authentication: "none",
+        apiKey: "",
+      },
+      fetcher,
+    );
+
+    await provider.describe({
+      image: new Blob(["pixels"], { type: "image/png" }),
+      context: "  A birthday post.  ",
+      signal: new AbortController().signal,
+    });
+  });
+
+  it("keeps the base prompt when manual context is whitespace only", async () => {
+    const fetcher = vi.fn(
+      async (_input: RequestInfo | URL, init?: RequestInit) => {
+        const body = JSON.parse(String(init?.body));
+        expect(body.input[0].content[0].text).toBe(
+          "Provide an image description for the visually impaired that fits into 1300 characters or less.",
+        );
+        return new Response(
+          JSON.stringify({
+            output: [{ content: [{ type: "output_text", text: "Done." }] }],
+          }),
+          { status: 200 },
+        );
+      },
+    );
+    const provider = createDescriptionProvider(
+      {
+        baseUrl: "https://api.example.test",
+        model: "vision-model",
+        authentication: "none",
+        apiKey: "",
+      },
+      fetcher,
+    );
+
+    await provider.describe({
+      image: new Blob(["pixels"], { type: "image/png" }),
+      context: " \n\t ",
+      signal: new AbortController().signal,
+    });
+  });
 });

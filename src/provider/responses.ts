@@ -35,7 +35,7 @@ export function createDescriptionProvider(
               {
                 role: "user",
                 content: [
-                  { type: "input_text", text: baseDescriptionPrompt },
+                  { type: "input_text", text: buildPrompt(request.context) },
                   { type: "input_image", image_url: imageUrl },
                 ],
               },
@@ -48,6 +48,14 @@ export function createDescriptionProvider(
       return extractDescription(payload);
     },
   };
+}
+
+export function buildPrompt(context?: string): string {
+  const trimmedContext = context?.trim();
+  if (!trimmedContext) {
+    return baseDescriptionPrompt;
+  }
+  return `${baseDescriptionPrompt}\n\nThe user provides the following additional context: ${trimmedContext}`;
 }
 
 type ResponsesPayload = {
