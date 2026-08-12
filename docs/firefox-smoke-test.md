@@ -18,13 +18,15 @@ Then use a clean Firefox profile or **This Firefox** in `about:debugging`.
 - [ ] Select the toolbar action and confirm the Image Description sidebar opens.
 - [ ] Reload the add-on after a rebuild and confirm the sidebar still opens.
 - [ ] Confirm the manifest has no required clipboard, page, tab, history, cookie,
-      or broad host permission.
+      or broad host permission; its only default host entries are loopback and
+      `https://api.openai.com/*`.
 
 ## Provider configuration and request
 
 - [ ] Open the extension's **Options** page.
-- [ ] Save an HTTPS OpenAI-compatible provider with a model identifier and the
-      intended authentication mode. Confirm Firefox asks for that origin only.
+- [ ] Save an OpenAI provider and confirm its predeclared host access works without
+      a save-time origin prompt. Save another HTTPS provider and confirm Firefox
+      asks for that configured origin only.
 - [ ] For local development, save an `http://localhost`, `http://127.0.0.1`, or
       `http://[::1]` provider and confirm it is accepted.
 - [ ] Copy an image in a normal Firefox tab, paste it into **Paste an image here**,

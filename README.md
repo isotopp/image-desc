@@ -123,8 +123,10 @@ Configure the service after installing the extension and before selecting
 8. If you selected **Bearer token**, enter the API key in **API key**. The key is
    stored in Firefox's extension storage and is not shown in status messages.
 9. Select **Save provider**.
-10. Firefox asks for access to the provider origin. Review the origin and select
-    **Allow** only if it is the service you intend to use.
+10. Firefox requests host access. The built-in loopback addresses and
+    `https://api.openai.com` are declared by default; for another HTTPS provider,
+    review the exact origin and select **Allow** only if it is the service you
+    intend to use.
 11. Return to the sidebar.
 
 The extension sends requests to the Responses API. You may enter either a server
@@ -196,20 +198,20 @@ permits.
   extension storage so you do not have to re-enter them each time.
 - The extension does not request persistent clipboard-read or clipboard-write
   permissions. Clipboard access occurs only through your paste or copy gesture.
-- Provider access is limited to the origin you explicitly save. The optional
-  right-click feature is disabled unless you enable it and grant its additional
-  permissions.
+- The extension has default host access for local loopback services and
+  `https://api.openai.com`. Other HTTPS provider access is limited to the origin
+  you explicitly save. The optional right-click feature is disabled unless you
+  enable it and grant its additional permissions.
 
 ## Troubleshooting
 
 - **Describe image is disabled:** save a provider, return to the sidebar, and paste
   an image. The action is disabled until both are available.
 - **Firefox says provider access was not granted:** open `about:addons`, select
-  **Image Description**, open **Permissions and data**, and allow access for the
-  configured provider origin. Then return to **Options** and select **Save
-  provider** again. If you recently rebuilt the extension, select **Reload** in
-  `about:debugging` first; Firefox can retain an earlier denial until you change
-  the permission there.
+  **Image Description**, and open **Permissions and data**. Enable the configured
+  provider origin (or reload/reinstall the extension after a manifest change),
+  then return to **Options** and select **Save provider** again. The built-in
+  loopback and OpenAI hosts should already be enabled after installation.
 - **The provider URL is rejected:** use HTTPS, except for the three loopback HTTP
   addresses listed above.
 - **The sidebar says it could not create a description:** check that the provider

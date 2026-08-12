@@ -152,16 +152,18 @@ interface DescriptionProvider {
   all other endpoints must use HTTPS.
 - The base URL, model identifier, authentication mode, and API key are persisted in
   `browser.storage.local`; images, manual context, and descriptions are not.
-- Saving a provider requests host access for that configured origin.
+- Default host access covers `localhost`, `127.0.0.1`, `[::1]`, and
+  `https://api.openai.com`; other HTTPS providers request access for the configured
+  origin when saved.
 - If host access is denied, the provider is not activated and a clear inline error
   is shown.
-- Removing or replacing a provider revokes host access that is no longer needed,
-  where Firefox permits revocation.
+- Removing or replacing a provider revokes runtime host access that is no longer
+  needed, where Firefox permits revocation; predeclared default host access remains.
 - The extension never silently scans localhost or the local network for endpoints.
 - A shared service credential is never embedded in the extension package.
 - Credentials are not written to logs or included in generated diagnostics.
-- Provider host access is limited to the configured origin rather than a broad
-  host pattern.
+- Provider host access is limited to the predeclared default origins or, for other
+  HTTPS providers, the configured origin rather than a broad required pattern.
 - The provider uses the Responses API dialect and sends requests to
   `<base URL>/v1/responses`; the configured base URL may already include the `/v1`
   path, which is not duplicated.

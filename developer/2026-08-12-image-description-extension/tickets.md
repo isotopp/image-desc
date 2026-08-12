@@ -288,8 +288,9 @@ loopback hostnames.
 
 ### Outcome
 
-Saving valid provider settings activates them only after Firefox grants access to the
-configured origin.
+Saving valid provider settings activates them after required access is available:
+loopback and `https://api.openai.com` are predeclared defaults, while other HTTPS
+providers request access to the configured origin.
 
 ### TDD cycles
 
@@ -302,8 +303,9 @@ configured origin.
 
 ### Acceptance criteria
 
-- Permission is requested only from the explicit save action.
-- The requested origin is derived from the validated base URL.
+- Non-default permission is requested only from the explicit save action.
+- Default host access covers the loopback origins and `https://api.openai.com`.
+- A non-default requested origin is derived from the validated base URL.
 - Denial does not partially activate the rejected configuration.
 - No request uses an origin that has not been granted.
 

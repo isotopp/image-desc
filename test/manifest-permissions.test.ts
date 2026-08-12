@@ -29,7 +29,15 @@ describe("extension permission budget", () => {
         "cookies",
       ]),
     );
-    expect(manifest.host_permissions).toBeUndefined();
+    expect(manifest.host_permissions).toEqual(
+      expect.arrayContaining([
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "http://[::1]/*",
+        "https://api.openai.com/*",
+      ]),
+    );
+    expect(manifest.host_permissions).not.toContain("<all_urls>");
     expect(
       required.some((permission) => permission.includes("<all_urls>")),
     ).toBe(false);
@@ -45,25 +53,29 @@ describe("extension permission budget", () => {
     expect(required).toContain("contextMenus");
     expect(required).toContain("storage");
     expect(optional).toEqual(
-      expect.arrayContaining([
-        "activeTab",
-        "scripting",
-        "https://*/*",
-        "http://localhost/*",
-        "http://127.0.0.1/*",
-        "http://[::1]/*",
-      ]),
+      expect.arrayContaining(["activeTab", "scripting", "https://*/*"]),
     );
     expect(optional).not.toContain("menus");
-    expect(manifest.optional_host_permissions).toEqual(
+    expect(optional).not.toEqual(
       expect.arrayContaining([
-        "https://*/*",
         "http://localhost/*",
         "http://127.0.0.1/*",
         "http://[::1]/*",
+        "https://api.openai.com/*",
       ]),
     );
+    expect(manifest.optional_host_permissions).toEqual(
+      expect.arrayContaining(["https://*/*"]),
+    );
     expect(manifest.optional_host_permissions).not.toContain("<all_urls>");
+    expect(manifest.optional_host_permissions).not.toEqual(
+      expect.arrayContaining([
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "http://[::1]/*",
+        "https://api.openai.com/*",
+      ]),
+    );
   });
 
   it("declares the current data-collection behavior", () => {

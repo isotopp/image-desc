@@ -7,20 +7,14 @@
     "scripts": ["background.js"]
   },
   "permissions": ["contextMenus", "storage"],
-  "optional_permissions": [
-    "activeTab",
-    "scripting",
-    "https://*/*",
+  "host_permissions": [
     "http://localhost/*",
     "http://127.0.0.1/*",
-    "http://[::1]/*"
+    "http://[::1]/*",
+    "https://api.openai.com/*"
   ],
-  "optional_host_permissions": [
-    "https://*/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*",
-    "http://[::1]/*"
-  ],
+  "optional_permissions": ["activeTab", "scripting", "https://*/*"],
+  "optional_host_permissions": ["https://*/*"],
   "action": {
     "default_title": "Open Image Description"
   },
