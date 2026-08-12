@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Image Description",
+  "version": "0.1.0",
+  "description": "Describe an explicitly pasted image for blind and visually impaired people.",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "action": {
+    "default_title": "Open Image Description"
+  },
+  "sidebar_action": {
+    "default_title": "Image Description",
+    "default_panel": "sidebar/sidebar.html",
+    "open_at_install": false
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "image-description@local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}

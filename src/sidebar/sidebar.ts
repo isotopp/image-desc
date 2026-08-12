@@ -1,17 +1,33 @@
-"use strict";
+export {};
 
-const pasteTarget = document.querySelector("#paste-target");
-const previewSection = document.querySelector("#preview-section");
-const preview = document.querySelector("#preview");
-const removeImageButton = document.querySelector("#remove-image");
-const status = document.querySelector("#status");
-const description = document.querySelector("#description");
-const copyDescriptionButton = document.querySelector("#copy-description");
+function requiredElement<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) {
+    throw new Error(`Image description sidebar markup is missing ${selector}.`);
+  }
+  return element;
+}
 
-let previewUrl;
+const pasteTarget = requiredElement<HTMLDivElement>("#paste-target");
+const previewSection = requiredElement<HTMLElement>("#preview-section");
+const preview = requiredElement<HTMLImageElement>("#preview");
+const removeImageButton = requiredElement<HTMLButtonElement>("#remove-image");
+const status = requiredElement<HTMLParagraphElement>("#status");
+const description = requiredElement<HTMLDivElement>("#description");
+const copyDescriptionButton = requiredElement<HTMLButtonElement>(
+  "#copy-description",
+);
 
-pasteTarget.addEventListener("paste", (event) => {
-  const imageItem = [...event.clipboardData.items].find((item) =>
+let previewUrl: string | undefined;
+
+pasteTarget.addEventListener("paste", (event: ClipboardEvent) => {
+  const clipboardData = event.clipboardData;
+  if (!clipboardData) {
+    status.textContent = "Firefox did not provide clipboard data.";
+    return;
+  }
+
+  const imageItem = [...clipboardData.items].find((item) =>
     item.type.startsWith("image/"),
   );
 
@@ -39,11 +55,11 @@ pasteTarget.addEventListener("input", () => {
 removeImageButton.addEventListener("click", reset);
 
 copyDescriptionButton.addEventListener("click", async () => {
-  await navigator.clipboard.writeText(description.textContent);
+  await navigator.clipboard.writeText(description.textContent ?? "");
   status.textContent = "Description copied to the clipboard.";
 });
 
-function showImage(image) {
+function showImage(image: File): void {
   revokePreviewUrl();
   previewUrl = URL.createObjectURL(image);
   preview.src = previewUrl;
@@ -55,7 +71,7 @@ function showImage(image) {
     "Image ready. LLM description processing will be added in a later story.";
 }
 
-function reset() {
+function reset(): void {
   revokePreviewUrl();
   preview.removeAttribute("src");
   previewSection.hidden = true;
@@ -66,7 +82,7 @@ function reset() {
   pasteTarget.focus();
 }
 
-function revokePreviewUrl() {
+function revokePreviewUrl(): void {
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
     previewUrl = undefined;
