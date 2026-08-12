@@ -23,5 +23,7 @@ export async function revokeProviderOriginAccess(
 }
 
 export function providerOriginPattern(baseUrl: URL): string {
-  return `${baseUrl.origin}/*`;
+  // Firefox match patterns do not support ports. The permission therefore
+  // covers the host, while the provider request itself still uses baseUrl.port.
+  return `${baseUrl.protocol}//${baseUrl.hostname}/*`;
 }

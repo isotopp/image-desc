@@ -53,6 +53,29 @@ describe("provider origin access", () => {
     expect(storage.set).toHaveBeenCalled();
   });
 
+  it("uses Firefox's host pattern when the provider URL includes a port", async () => {
+    await import("../src/options/options");
+    const form = document.querySelector<HTMLFormElement>("#provider-form");
+    const baseUrl = document.querySelector<HTMLInputElement>("#base-url");
+    const model = document.querySelector<HTMLInputElement>("#model");
+
+    if (!form || !baseUrl || !model) {
+      throw new Error("Provider options markup is incomplete.");
+    }
+
+    baseUrl.value = "http://localhost:1234/v1";
+    model.value = "local-vision";
+    form.dispatchEvent(
+      new Event("submit", { bubbles: true, cancelable: true }),
+    );
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(request).toHaveBeenCalledWith({
+      origins: ["http://localhost/*"],
+    });
+    expect(storage.set).toHaveBeenCalled();
+  });
+
   it("does not activate a provider when the origin request is denied", async () => {
     request.mockResolvedValue(false);
     await import("../src/options/options");
