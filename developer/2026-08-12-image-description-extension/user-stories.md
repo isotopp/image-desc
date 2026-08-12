@@ -163,7 +163,8 @@ interface DescriptionProvider {
 - Provider host access is limited to the configured origin rather than a broad
   host pattern.
 - The provider uses the Responses API dialect and sends requests to
-  `<base URL>/v1/responses`.
+  `<base URL>/v1/responses`; the configured base URL may already include the `/v1`
+  path, which is not duplicated.
 - Provider and model incompatibilities are reported from the failed request; the
   extension does not probe or pre-validate provider capabilities.
 

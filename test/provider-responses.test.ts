@@ -52,6 +52,32 @@ describe("Responses API description provider", () => {
     expect(fetcher).toHaveBeenCalledOnce();
   });
 
+  it("does not duplicate a /v1 path when it is included in the base URL", async () => {
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      expect(input).toBe("http://localhost:1234/v1/responses");
+      return new Response(
+        JSON.stringify({
+          output: [{ content: [{ type: "output_text", text: "Done." }] }],
+        }),
+        { status: 200 },
+      );
+    });
+    const provider = createDescriptionProvider(
+      {
+        baseUrl: "http://localhost:1234/v1",
+        model: "vision-model",
+        authentication: "none",
+        apiKey: "",
+      },
+      fetcher,
+    );
+
+    await provider.describe({
+      image: new Blob(["pixels"], { type: "image/png" }),
+      signal: new AbortController().signal,
+    });
+  });
+
   it("sends a bearer token when bearer authentication is configured", async () => {
     const fetcher = vi.fn(
       async (_input: RequestInfo | URL, init?: RequestInit) => {

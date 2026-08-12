@@ -36,26 +36,23 @@ export function createDescriptionProvider(
       }
       let response: Response;
       try {
-        response = await fetcher(
-          `${config.baseUrl.replace(/\/$/, "")}/v1/responses`,
-          {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-              model: config.model,
-              input: [
-                {
-                  role: "user",
-                  content: [
-                    { type: "input_text", text: buildPrompt(request.context) },
-                    { type: "input_image", image_url: imageUrl },
-                  ],
-                },
-              ],
-            }),
-            signal: request.signal,
-          },
-        );
+        response = await fetcher(responsesEndpoint(config.baseUrl), {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            model: config.model,
+            input: [
+              {
+                role: "user",
+                content: [
+                  { type: "input_text", text: buildPrompt(request.context) },
+                  { type: "input_image", image_url: imageUrl },
+                ],
+              },
+            ],
+          }),
+          signal: request.signal,
+        });
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           throw error;
@@ -80,6 +77,13 @@ export function createDescriptionProvider(
       return extractDescription(payload);
     },
   };
+}
+
+function responsesEndpoint(baseUrl: string): string {
+  const normalizedBaseUrl = baseUrl.replace(/\/+$/, "");
+  return /\/v1$/i.test(normalizedBaseUrl)
+    ? `${normalizedBaseUrl}/responses`
+    : `${normalizedBaseUrl}/v1/responses`;
 }
 
 export function buildPrompt(context?: string): string {

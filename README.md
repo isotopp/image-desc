@@ -113,6 +113,8 @@ Configure the service after installing the extension and before selecting
    this link in the extension's details panel or in a gear menu.
 5. In **Provider base URL**, enter the service's base address. Examples:
    - `http://localhost:1234` for a local service listening on port 1234.
+   - `http://localhost:1234/v1` when the service supplies an OpenAI-compatible
+     `/v1` base URL (as LM Studio does).
    - `http://127.0.0.1:1234` for the same service through IPv4 loopback.
    - `https://provider.example` for a hosted HTTPS service.
 6. In **Model identifier**, enter the exact vision-capable model name configured by
@@ -125,9 +127,12 @@ Configure the service after installing the extension and before selecting
     **Allow** only if it is the service you intend to use.
 11. Return to the sidebar.
 
-The extension sends requests to `<provider base URL>/v1/responses` using the model
-you entered. It asks for a description that fits within 1300 characters. A local
-LM Studio server may accept no key or any key value, depending on its settings.
+The extension sends requests to the Responses API. You may enter either a server
+root (for example, `http://localhost:1234`) or a URL that already ends in `/v1`
+(for example, `http://localhost:1234/v1`); the extension adds `/v1` only when it
+is missing, then calls `/responses`. It uses the model you entered and asks for a
+description that fits within 1300 characters. A local LM Studio server may accept
+no key or any key value, depending on its settings.
 Plain HTTP is accepted only for `localhost`, `127.0.0.1`, and `[::1]`; other
 providers must use HTTPS. The extension does not search the local network for a
 service.

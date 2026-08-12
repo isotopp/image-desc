@@ -48,9 +48,15 @@ describe("extension permission budget", () => {
       expect.arrayContaining(["activeTab", "scripting"]),
     );
     expect(optional).not.toContain("menus");
-    expect(manifest.optional_host_permissions ?? []).not.toContain(
-      "<all_urls>",
+    expect(manifest.optional_host_permissions).toEqual(
+      expect.arrayContaining([
+        "https://*/*",
+        "http://localhost/*",
+        "http://127.0.0.1/*",
+        "http://[::1]/*",
+      ]),
     );
+    expect(manifest.optional_host_permissions).not.toContain("<all_urls>");
   });
 
   it("declares the current data-collection behavior", () => {
