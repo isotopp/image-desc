@@ -77,4 +77,25 @@ describe("provider configuration", () => {
       "placeholder",
     );
   });
+
+  it("does not save a non-loopback HTTP endpoint", async () => {
+    await import("../src/options/options");
+    const form = document.querySelector<HTMLFormElement>("#provider-form");
+    const baseUrl = document.querySelector<HTMLInputElement>("#base-url");
+    const model = document.querySelector<HTMLInputElement>("#model");
+
+    if (!form || !baseUrl || !model) {
+      throw new Error("Provider options markup is incomplete.");
+    }
+
+    baseUrl.value = "http://insecure.example.test";
+    model.value = "vision-model";
+    form.requestSubmit();
+    await Promise.resolve();
+
+    expect(storage.set).not.toHaveBeenCalled();
+    expect(document.querySelector("#status")?.textContent).toBe(
+      "Use HTTPS unless the provider runs on localhost.",
+    );
+  });
 });

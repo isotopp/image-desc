@@ -1,4 +1,5 @@
 import { emptyProviderConfig, type ProviderConfig } from "../provider/config";
+import { validateProviderUrl } from "../provider/url";
 
 const form = requiredElement<HTMLFormElement>("#provider-form");
 const baseUrl = requiredElement<HTMLInputElement>("#base-url");
@@ -23,6 +24,12 @@ async function loadConfiguration(): Promise<void> {
 }
 
 async function saveConfiguration(): Promise<void> {
+  const urlValidation = validateProviderUrl(baseUrl.value.trim());
+  if (!urlValidation.valid) {
+    status.textContent = urlValidation.message;
+    return;
+  }
+
   const config: ProviderConfig = {
     baseUrl: baseUrl.value.trim(),
     model: model.value.trim(),
