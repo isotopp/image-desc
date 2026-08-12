@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Description</title>
+    <link rel="stylesheet" href="sidebar.css" />
+    <script src="sidebar.js" defer></script>
+  </head>
+  <body>
+    <main>
+      <h1>Image description</h1>
+      <p class="intro">
+        In Firefox, copy an image. Return here and paste it below with
+        <kbd>Ctrl</kbd>+<kbd>V</kbd> or <kbd>Command</kbd>+<kbd>V</kbd>.
+      </p>
+
+      <section aria-labelledby="paste-heading">
+        <h2 id="paste-heading">Choose an image</h2>
+        <div
+          id="paste-target"
+          class="paste-target"
+          contenteditable="true"
+          role="textbox"
+          aria-multiline="false"
+          aria-describedby="paste-help"
+          tabindex="0"
+        >Paste an image here</div>
+        <p id="paste-help" class="help">
+          The extension reads only the image you explicitly paste here.
+        </p>
+      </section>
+
+      <section id="preview-section" aria-labelledby="preview-heading" hidden>
+        <h2 id="preview-heading">Selected image</h2>
+        <img id="preview" alt="The image selected for description" />
+        <button id="remove-image" type="button">Remove image</button>
+      </section>
+
+      <section aria-labelledby="description-heading">
+        <h2 id="description-heading">Description</h2>
+        <p id="status" class="status" role="status" aria-live="polite">
+          No image selected.
+        </p>
+        <div id="description" class="description" tabindex="0" hidden></div>
+        <button id="copy-description" type="button" hidden>
+          Copy description
+        </button>
+      </section>
+    </main>
+  </body>
+</html>
